@@ -1,0 +1,71 @@
+name: AchievementChallenge
+version: 1.0.0
+main: de.achievementchallenge.AchievementChallengePlugin
+api-version: 1.21
+author: Der allerechte Intäligäns
+description: Alle gegen Astro(voraussichtlich)
+
+commands:
+  # Timer-Commands (übernommen aus MobHunt)
+  timerstart:
+    description: Startet den Timer
+    usage: /timerstart
+    permission: achievementchallenge.timer.admin
+
+  timerpause:
+    description: Pausiert den Timer
+    usage: /timerpause
+    permission: achievementchallenge.timer.admin
+
+  timerresume:
+    description: Setzt den Timer fort
+    usage: /timerresume
+    permission: achievementchallenge.timer.admin
+
+  timer:
+    description: Zeigt den Timer an
+    usage: /timer
+
+  timerreset:
+    description: Setzt den Timer zurück
+    usage: /timerreset
+    permission: achievementchallenge.timer.admin
+
+  timertoggle:
+    description: Schaltet die ActionBar um
+    usage: /timertoggle
+
+  # Challenge-Commands (neu)
+  seteinzelkaempfer:
+    description: Setzt einen Spieler als Einzelkämpfer
+    usage: /seteinzelkaempfer <spieler>
+    permission: achievementchallenge.challenge.admin
+
+  showeinzelkaempfer:
+    description: Zeigt den aktuellen Einzelkämpfer
+    usage: /showeinzelkaempfer
+    aliases: [einzelkaempfer]
+
+  challengestatus:
+    description: Zeigt den Challenge-Status in einer GUI
+    usage: /challengestatus
+    aliases: [cstatus]
+
+  resetchallenge:
+    description: Setzt die Challenge zurück
+    usage: /resetchallenge
+    permission: achievementchallenge.challenge.admin
+
+  fuenfminutengodmode:
+    description: Gibt dir für 5 Minuten OP-Rechte (Scherz-Command)
+    usage: /fuenfminutengodmode
+    aliases: [5mingodmode, godmode5]
+
+permissions:
+  achievementchallenge.timer.admin:
+    description: Erlaubt Timer-Administration
+    default: op
+
+  achievementchallenge.challenge.admin:
+    description: Erlaubt Challenge-Administration
+    default: op
