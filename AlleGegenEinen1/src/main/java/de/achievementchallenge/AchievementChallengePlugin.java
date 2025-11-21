@@ -23,6 +23,13 @@ public class AchievementChallengePlugin extends JavaPlugin {
     private TimerManager timerManager;
     private ChallengeManager challengeManager;
     private AchievementProgressManager achievementProgressManager;
+    private DaemonManager daemonManager; // NEU
+    private AnnouncementManager announcementManager; // NEU
+
+    // Troll-Commands (für Cleanup)
+    private AnonymCommand anonymCommand;
+    private AudiotestCommand audiotestCommand;
+    private LagCommand lagCommand;
 
     @Override
     public void onEnable() {
@@ -44,6 +51,8 @@ public class AchievementChallengePlugin extends JavaPlugin {
         achievementProgressManager = new AchievementProgressManager(this);
         challengeManager = new ChallengeManager(this);
         timerManager = new TimerManager(this);
+        daemonManager = new DaemonManager(this); // NEU
+        announcementManager = new AnnouncementManager(this); // NEU
 
         // Lade gespeicherte Daten
         dataManager.loadData();
@@ -80,6 +89,17 @@ public class AchievementChallengePlugin extends JavaPlugin {
             timerManager.stopChallengeCheck();
         }
 
+        // Cleanup für Troll-Commands
+        if (anonymCommand != null) {
+            anonymCommand.stop();
+        }
+        if (audiotestCommand != null) {
+            audiotestCommand.stopAll();
+        }
+        if (lagCommand != null) {
+            lagCommand.stop();
+        }
+
         getLogger().info("Achievement Challenge Plugin wurde deaktiviert!");
     }
 
@@ -103,6 +123,18 @@ public class AchievementChallengePlugin extends JavaPlugin {
 
         // Fun-Command (für den Scherz 😄)
         getCommand("fuenfminutengodmode").setExecutor(new FuenfMinutenGodmodeCommand(this));
+
+        // Troll-Commands (für Dämonen 😈)
+        getCommand("666").setExecutor(new Daemon666Command(this));
+        anonymCommand = new AnonymCommand(this);
+        getCommand("anonym").setExecutor(anonymCommand);
+        getCommand("ankuendigung").setExecutor(new AnkuendigungCommand(this));
+        audiotestCommand = new AudiotestCommand(this);
+        getCommand("audiotest").setExecutor(audiotestCommand);
+        getCommand("kaffepause").setExecutor(new KaffepauseCommand(this));
+        lagCommand = new LagCommand(this);
+        getCommand("lag").setExecutor(lagCommand);
+        getCommand("befreimich").setExecutor(new BefreimichCommand(this));
     }
 
     /**
@@ -111,6 +143,7 @@ public class AchievementChallengePlugin extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new AchievementListener(this), this);
         getServer().getPluginManager().registerEvents(new ChallengeInventoryClickListener(this), this);
+        getServer().getPluginManager().registerEvents(new DaemonTotemListener(this), this); // NEU
     }
 
     // ==================== Getter ====================
@@ -133,5 +166,13 @@ public class AchievementChallengePlugin extends JavaPlugin {
 
     public AchievementProgressManager getAchievementProgressManager() {
         return achievementProgressManager;
+    }
+
+    public DaemonManager getDaemonManager() {
+        return daemonManager;
+    }
+
+    public AnnouncementManager getAnnouncementManager() {
+        return announcementManager;
     }
 }

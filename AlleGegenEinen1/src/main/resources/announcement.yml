@@ -1,0 +1,50 @@
+# Ankündigungs-Texte für Troll-Commands
+# Platzhalter: {player} = Spielername, {target} = Zielspieler, {minutes} = Minuten
+
+# Dämon-Beschwörung (/666)
+daemon_summon:
+  - "{player} hat einen Pakt mit dem Teufel geschlossen!"
+  - "Die Hölle hat ihre Pforten geöffnet... {player} ist nun ein Dämon!"
+  - "{player} hat die dunkle Seite der Macht entdeckt!"
+  - "Aus den Tiefen der Unterwelt steigt {player} empor!"
+  - "Satan persönlich hat {player} gesegnet... oder verflucht?"
+
+# Anonym-Command (/anonym)
+anonym:
+  - "Wer bin ich? Wer bist du? Wir sind die nächsten {minutes} Minuten alle {target}!"
+  - "Wer wäre denn nicht gerne mal für {minutes} Minuten {target}?"
+  - "{target} hat sich geklont! Oder sind das Doppelgänger? Scheint jedenfalls für die nächsten {minutes} Minuten so zu bleiben..."
+  - "Identitätskrise incoming... niemand weiß mehr, wer {target} ist!"
+  - "Plot Twist: Wir waren die ganze Zeit {target}!"
+
+# Audiotest-Command (/audiotest)
+audiotest:
+  - "{target} hört jetzt Stimmen..."
+  - "{target}'s Stimmen werden lauter!"
+  - "Hoppla! {target}'s Kopfhörer sind jetzt verflucht!"
+  - "Oh oh, {target}! Du hast jetzt den Fluch des Tontechnikers."
+  - "{target} wird jetzt von Geistern heimgesucht!"
+
+# Kaffeepause-Ausreden (/kaffepause)
+kaffepause:
+  - "Der Server braucht seine 5-Minuten-Kaffeepause!"
+  - "Ups, jemand hat am Stromkabel gezogen. Wir können gleich weitermachen."
+  - "Im Serverraum haben sich Reptiloiden und Aliens verschanzt. Pause!"
+  - "Einen Moment bitte, der Server wird erstmal von jemand anderem ganz dringend gebraucht."
+  - "Feueralarm! Alle einmal raus hier bitte"
+
+# Lag-Command (/lag)
+lag:
+  - "Du hast jetzt lange genug auf deinen Bildschirm geschaut. Mach doch mal eine Pause!"
+  - "Hoppla! Was sind denn das für Lags?"
+  - "Chronos hat seine Pause gemacht. Niemand bewegt sich."
+  - "Jetzt hat jemand die Zeit kaputt gemacht... Mensch!"
+  - "Die Zeit steht still... merkwürdig... als steckten dunkle Mächte dahinter..."
+
+# Befreiung vom Dämon-Status (/befreitmich)
+befreimich:
+  - "{player} hat seine dunklen Kräfte aufgegeben!"
+  - "Die Erlösung ist da! {player} ist kein Dämon mehr!"
+  - "{player} wurde vom Teufel befreit!"
+  - "Endlich! Wir haben {player} zurück!"
+  - "{player} hat seine Seele zurückgekauft!"

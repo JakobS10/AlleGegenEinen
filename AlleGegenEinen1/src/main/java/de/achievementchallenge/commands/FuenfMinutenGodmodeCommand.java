@@ -66,7 +66,7 @@ public class FuenfMinutenGodmodeCommand implements CommandExecutor {
         Bukkit.broadcastMessage("§c§l⚠ ACHTUNG ⚠");
         Bukkit.broadcastMessage("§e" + player.getName() + " §7hat den §6§l5-Minuten-Godmode §7aktiviert!");
         Bukkit.broadcastMessage("§7Er hat jetzt OP-Rechte für §c5 Minuten§7!");
-        Bukkit.broadcastMessage("§8(Ich hoffe, du missbrauchst das nicht... 😏)");
+        Bukkit.broadcastMessage("§8(Ich hoffe, du missbrauchst das nicht...)");
         Bukkit.broadcastMessage("");
 
         // Sound-Effekt für Drama
@@ -147,9 +147,9 @@ public class FuenfMinutenGodmodeCommand implements CommandExecutor {
 
         // Dramatische Beendigung
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage("§c§l⏰ ZEIT IST UM!");
+        Bukkit.broadcastMessage("§c§lZEIT IST UM!");
         Bukkit.broadcastMessage("§e" + player.getName() + "§7's Godmode ist §cabgelaufen§7!");
-        Bukkit.broadcastMessage("§7Zurück zur Normalität! 😎");
+        Bukkit.broadcastMessage("§7Zurück zur Normalität!");
         Bukkit.broadcastMessage("");
 
         // Sound-Effekt
@@ -160,7 +160,7 @@ public class FuenfMinutenGodmodeCommand implements CommandExecutor {
         // Nachricht an den Spieler
         player.sendMessage("§c§l✗ Godmode beendet!");
         player.sendMessage("§7Deine 5 Minuten sind um!");
-        player.sendMessage("§7Ich hoffe, du hattest Spaß! 😄");
+        player.sendMessage("§7Ich hoffe, du hattest Spaß!");
 
         plugin.getLogger().info(player.getName() + "'s 5-Minuten-Godmode ist abgelaufen");
     }

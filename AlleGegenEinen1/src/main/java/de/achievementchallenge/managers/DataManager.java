@@ -1,6 +1,5 @@
 package de.achievementchallenge.managers;
 
-
 import de.achievementchallenge.AchievementChallengePlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,7 +11,7 @@ import java.util.*;
 
 /**
  * Verwaltet das Speichern und Laden aller Daten
- * <p>
+ *
  * Speichert:
  * - Timer-Daten (Ticks, Running-Status, etc.)
  * - ActionBar-Einstellungen
@@ -78,6 +77,9 @@ public class DataManager {
 
         // Lade Achievement-Daten
         loadAchievementData();
+
+        // Lade Dämon-Daten
+        loadDaemonData();
 
         plugin.getLogger().info("Daten erfolgreich geladen");
     }
@@ -174,6 +176,9 @@ public class DataManager {
         // Speichere Achievement-Daten
         saveAchievementData();
 
+        // Speichere Dämon-Daten
+        saveDaemonData();
+
         // Schreibe in Datei
         try {
             dataConfig.save(dataFile);
@@ -230,6 +235,19 @@ public class DataManager {
             }
 
             dataConfig.set(path + ".completers", completerUUIDs);
+        }
+    }
+
+    /**
+     * Speichert Dämon-Daten
+     */
+    private void saveDaemonData() {
+        dataConfig.set("daemons", null); // Leere alte Daten
+
+        Map<UUID, String> daemons = plugin.getDaemonManager().getAllDaemons();
+
+        for (Map.Entry<UUID, String> entry : daemons.entrySet()) {
+            dataConfig.set("daemons." + entry.getKey().toString(), entry.getValue());
         }
     }
 
