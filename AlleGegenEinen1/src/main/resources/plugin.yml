@@ -4,6 +4,7 @@ main: de.achievementchallenge.AchievementChallengePlugin
 api-version: 1.21
 author: Der allerechte Intäligäns
 description: Alle gegen Astro(voraussichtlich)
+depend: [ProtocolLib]
 
 commands:
   # Timer-Commands (übernommen aus MobHunt)
