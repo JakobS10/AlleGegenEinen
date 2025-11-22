@@ -155,6 +155,33 @@ public class DataManager {
     }
 
     /**
+     * Lädt Dämon-Daten
+     */
+    private void loadDaemonData() {
+        if (!dataConfig.contains("daemons")) {
+            return;
+        }
+
+        ConfigurationSection daemonSection = dataConfig.getConfigurationSection("daemons");
+        if (daemonSection == null) return;
+
+        Map<UUID, String> daemonData = new HashMap<>();
+
+        for (String uuidStr : daemonSection.getKeys(false)) {
+            try {
+                UUID uuid = UUID.fromString(uuidStr);
+                String name = dataConfig.getString("daemons." + uuidStr);
+                daemonData.put(uuid, name);
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().warning("Ungültige UUID bei Dämon: " + uuidStr);
+            }
+        }
+
+        plugin.getDaemonManager().setData(daemonData);
+        plugin.getLogger().info("Dämon-Daten geladen: " + daemonData.size() + " Dämonen");
+    }
+
+    /**
      * Speichert alle Daten in die data.yml
      */
     public void saveData() {

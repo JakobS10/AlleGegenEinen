@@ -1,9 +1,8 @@
 package de.achievementchallenge.managers;
 
+import de.achievementchallenge.AchievementChallengePlugin;
 import de.achievementchallenge.utils.AchievementRegistry;
 import org.bukkit.Bukkit;
-
-import de.achievementchallenge.AchievementChallengePlugin;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
 
@@ -12,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Verwaltet den Fortschritt der Achievements für alle Spieler
- * <p>
+ *
  * Speichert:
  * - First Completions (wer hat ein Achievement als erstes geschafft)
  * - Spieler-spezifische Achievements (welche Achievements hat jeder Spieler)
@@ -22,7 +21,7 @@ public class AchievementProgressManager {
     private final AchievementChallengePlugin plugin;
 
     // Speichert für jedes Achievement, wer es als erstes abgeschlossen hat
-    private final Map<String, AchievementProgressManager.AchievementData> achievementData;
+    private final Map<String, AchievementData> achievementData;
 
     // Cache: Welche Achievements hat jeder Spieler abgeschlossen?
     private final Map<UUID, Set<String>> playerCompletedCache = new ConcurrentHashMap<>();
@@ -48,6 +47,10 @@ public class AchievementProgressManager {
 
         UUID playerId = player.getUniqueId();
 
+        // WICHTIG: Nutze IMMER den echten Namen aus Player.getName()
+        // Auch wenn DisplayName im Anonym-Mode geändert ist!
+        String realPlayerName = player.getName();
+
         // Hole oder erstelle die Achievement-Liste für diesen Spieler
         Set<String> completed = playerCompletedCache.computeIfAbsent(playerId, k -> ConcurrentHashMap.newKeySet());
 
@@ -56,13 +59,13 @@ public class AchievementProgressManager {
 
         // Prüfe, ob dies das erste Mal GLOBAL ist, dass dieses Achievement geschafft wurde
         boolean firstEver = achievementData.putIfAbsent(key,
-                new AchievementProgressManager.AchievementData(playerId, DataManager.getTimerTicks(), player.getName(), System.currentTimeMillis())) == null;
+                new AchievementData(playerId, DataManager.getTimerTicks(), realPlayerName, System.currentTimeMillis())) == null;
 
         if (firstEver) {
             // Broadcast nur wenn es wirklich das erste Mal global ist
             AchievementRegistry.AchievementInfo info = AchievementRegistry.getAchievementInfo(key);
             if (info != null) {
-                String message = "§eThe Player §6§l" + player.getName() + " §ewas the first completing §6§l" + info.getTitle() + " §e!";
+                String message = "§eThe Player §6§l" + realPlayerName + " §ewas the first completing §6§l" + info.getTitle() + " §e!";
                 Bukkit.broadcastMessage(message);
             }
         }
@@ -110,10 +113,13 @@ public class AchievementProgressManager {
 
                     // Nur neu aufzeichnen wenn es GLOBAL noch nicht existiert
                     if (!achievementData.containsKey(key)) {
-                        achievementData.put(key,
-                                new AchievementProgressManager.AchievementData(playerId, DataManager.getTimerTicks(), player.getName(), System.currentTimeMillis()));
+                        // WICHTIG: Nutze IMMER den echten Namen aus Player.getName()
+                        String realPlayerName = player.getName();
 
-                        plugin.getLogger().info("Neues Achievement aufgezeichnet: " + key + " von " + player.getName());
+                        achievementData.put(key,
+                                new AchievementData(playerId, DataManager.getTimerTicks(), realPlayerName, System.currentTimeMillis()));
+
+                        plugin.getLogger().info("Neues Achievement aufgezeichnet: " + key + " von " + realPlayerName);
                     }
                 }
             }
@@ -152,14 +158,14 @@ public class AchievementProgressManager {
     /**
      * Gibt die Daten über den ersten Abschluss eines Achievements zurück
      */
-    public AchievementProgressManager.AchievementData getFirstCompletion(String achievementKey) {
+    public AchievementData getFirstCompletion(String achievementKey) {
         return achievementData.get(achievementKey);
     }
 
     /**
      * Gibt alle First-Completion-Daten zurück
      */
-    public Map<String, AchievementProgressManager.AchievementData> getAllFirstCompletions() {
+    public Map<String, AchievementData> getAllFirstCompletions() {
         return achievementData;
     }
 
