@@ -47,4 +47,28 @@ befreimich:
   - "Die Erlösung ist da! {player} ist kein Dämon mehr!"
   - "{player} wurde vom Teufel befreit!"
   - "Endlich! Wir haben {player} zurück!"
-  - "{player} hat seine Seele zurückgekauft!"
+  - "{player} ist wieder Herrscher seiner Sinne!"
+
+# Blur-Command (/blur)
+blur:
+  - "{target}'s Sicht verschwimmt für {seconds} Sekunden!"
+  - "Die Realität wird unscharf für {target}..."
+  - "{target} braucht wohl eine Brille!"
+  - "Alles verschwimmt vor {target}'s Augen!"
+  - "{target} sieht jetzt alles doppelt... oder dreifach?"
+
+# KO-Command (/ko) - Broadcast-Nachricht
+ko:
+  - "{target} wurde im geblendet Zustand erwischt und ist jetzt K.O.!"
+  - "{target} konnte nichts sehen und ist jetzt anscheinend ohnmächtig!"
+  - "{target}! Geht es dir gut?"
+  - "{target}? {target}! Warum wirst du so blass?"
+  - "{target} geht es aber gar nicht gut! K.O.!"
+
+# KO-Command (/ko) - Kick-Nachricht für den Spieler
+ko_kick:
+  - "Du wurdest im geblendet Zustand erwischt!"
+  - "K.O.! Du konntest dich nicht wehren!"
+  - "Hilflos und geblendet - keine Chance!"
+  - "Du hast nichts kommen sehen... buchstäblich!"
+  - "Kannst du mich sehen? Und hören? Warum bist du so blass? Sag doch was!"

@@ -96,6 +96,17 @@ commands:
     usage: /befreimich
     permission: achievementchallenge.daemon
 
+  blur:
+    description: Macht den Bildschirm eines Spielers verschwommen
+    usage: /blur <Spieler> <Sekunden>
+    permission: achievementchallenge.daemon
+
+  ko:
+    description: Kickt alle geblurete Spieler
+    usage: /ko
+    permission: achievementchallenge.daemon
+
+
 permissions:
   achievementchallenge.timer.admin:
     description: Erlaubt Timer-Administration

@@ -135,6 +135,8 @@ public class AchievementChallengePlugin extends JavaPlugin {
         lagCommand = new LagCommand(this);
         getCommand("lag").setExecutor(lagCommand);
         getCommand("befreimich").setExecutor(new BefreimichCommand(this));
+        getCommand("blur").setExecutor(new BlurCommand(this));
+        getCommand("ko").setExecutor(new KOCommand(this));
     }
 
     /**

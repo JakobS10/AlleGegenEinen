@@ -1,0 +1,18 @@
+# Achievement Challenge Plugin Konfiguration
+
+settings:
+  # Broadcast wenn jemand ein Achievement als erster abschließt
+  broadcast-first-completions: true
+
+  # Sound-Effekte bei Challenge-Events
+  sound-effects: true
+
+  # Debug-Modus (mehr Logs)
+  debug: false
+
+messages:
+  # Anpassbare Nachrichten
+  challenge-started: "§6§l=== CHALLENGE GESTARTET ==="
+  challenge-ended: "§6§l=== CHALLENGE BEENDET ==="
+  einzelkaempfer-wins: "§a§l{player} HAT GEWONNEN!"
+  einzelkaempfer-loses: "§c§l{player} HAT VERLOREN!"
