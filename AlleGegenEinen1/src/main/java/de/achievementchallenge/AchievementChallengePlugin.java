@@ -137,6 +137,10 @@ public class AchievementChallengePlugin extends JavaPlugin {
         getCommand("befreimich").setExecutor(new BefreimichCommand(this));
         getCommand("blur").setExecutor(new BlurCommand(this));
         getCommand("ko").setExecutor(new KOCommand(this));
+        getCommand("immun").setExecutor(new ImmunCommand(this));
+        getCommand("psychischbedingt").setExecutor(new PsychischbedingtCommand(this));
+        getCommand("upsidedown").setExecutor(new UpsideDownCommand(this));
+        getCommand("schatten").setExecutor(new SchattenCommand(this));
     }
 
     /**

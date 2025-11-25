@@ -67,8 +67,48 @@ ko:
 
 # KO-Command (/ko) - Kick-Nachricht für den Spieler
 ko_kick:
-  - "Du wurdest im geblendet Zustand erwischt!"
+  - "Du bist zu Boden gegangen!"
   - "K.O.! Du konntest dich nicht wehren!"
-  - "Hilflos und geblendet - keine Chance!"
+  - "Da konntest du dich aber auch nicht wehren."
   - "Du hast nichts kommen sehen... buchstäblich!"
   - "Kannst du mich sehen? Und hören? Warum bist du so blass? Sag doch was!"
+
+# Immun-Command aktiviert
+immun:
+  - "{target} kann ab jetzt nicht mehr gebannt werden. Versucht es doch mal!"
+  - "{target} hat sich bisher so brav verhalten! Da wollen wir ihn doch mal gleich immun gegen Bans machen."
+  - "Wehe dem, der {target} bannt! Wobei... Versuch es doch!"
+  - "An alle Mods: Passt auf, wen ihr als nächstes bannt. Es sollte nicht {target} sein. Er könnte wiederkommen und sich rächen!"
+  - "{target} wird jetzt bitte erstmal nicht gebannt, okay?"
+
+#Immunität ist aktiv geworden
+immun_unban:
+  - "ICH HABE EUCH GEWARNT! {target} ist zurück!"
+  - "Sei nächstes Mal vorsichtiger, wen du bannst! Es sollte nicht {target} sein."
+  - "LEG DICH NICHT MIT {target} AN!"
+  - "Man bannt keine Plugin-Ersteller! Das könnte sich bitter rächen... {target} wird gleich zurück sein und dann wehe dir!"
+  - "NICHT MIT MIR FREUNDCHEN! DU KANNST NICHTS GEGEN {target}'S MACHT TUN!"
+
+#Psychischbedingt
+psychischbedingt:
+  - "Mach dir nichts draus, {target}. Jeder bildert sich mal Schmerzen ein. Das ist ganz normal und geht auch meistens nach fünf Minuten wieder weg."
+  - "Tja, {target}! Immerhin ist das alles gar nicht echt. Sonst würde es jetzt ganz schön wehtun."
+  - "{target}? Hast du Schmerzen? Das tut mir aber leid!"#
+  - "Hoppla, {target}! Jetzt habe ich dich versehentlich mit einem Bann belegt. Der geht aber in ein paar Minuten bestimmt wieder weg."
+  - "{target}? Ich glaube du bekommst Schaden. Alles gut bei dir?"
+
+#Upside Down
+upsidedown:
+  - "{target} hat ganz offensichtlich einen Knick in der Optik."
+  - "{target}? Kannst du mich sehen? Du schielst."
+  - "{target} scheint gerade Probleme mit der Frontkamera zu haben. Das ist sicher gleich behoben..."
+  - "Puh, {target}! Was ist denn bei dir passiert?"
+  - "Alles okay bei dir, {target}?"
+
+#schatten
+schatten:
+  - "Wer ist das da hinter dir, {target}?"
+  - "{target}? Dreh dich mal gaaaanz langsam um. Wer ist das?"
+  - "{target} wird jetzt verfolgt."
+  - "Jetzt hat {target} endlich doch mal Freunde! Dreh dich mal um."
+  - "{target}! Hinter dir!"

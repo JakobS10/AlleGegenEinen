@@ -22,6 +22,8 @@ import java.util.UUID;
  * - Einzelkämpfer setzen Bestätigung
  * - Einzelkämpfer setzen Zeitauswahl
  * - Challenge Reset Bestätigung
+ * - Challenge Status Ansichtswechsel
+ * - Challenge Status Pagination (Vor/Zurück)
  */
 public class ChallengeInventoryClickListener implements Listener {
 
@@ -59,8 +61,8 @@ public class ChallengeInventoryClickListener implements Listener {
             event.setCancelled(true);
             handleResetChallengeConfirmation(player, event);
         }
-        // Challenge Status - Ansichtswechsel
-        else if (title.contains("Challenge Status")) {
+        // Challenge Status - Alle Interaktionen
+        else if (title.contains("Challenge Status") || title.contains("Achievements - Seite")) {
             event.setCancelled(true);
             handleChallengeStatusClick(player, event);
         }
@@ -208,12 +210,27 @@ public class ChallengeInventoryClickListener implements Listener {
         String type = parts[0];
         int value = Integer.parseInt(parts[1]);
 
-        // Zeige Zusammenfassung und Bestätigung
-        // Für einfache Implementierung: Nutze Standard-Werte + ausgewählten Wert
-        int days = type.equals("days") ? value : 0;
-        int hours = type.equals("hours") ? value : 1;
-        int minutes = type.equals("minutes") ? value : 0;
-        int seconds = type.equals("seconds") ? value : 0;
+        // Verwende nur den ausgewählten Wert, keine Standard-Werte!
+        int days = 0;
+        int hours = 0;
+        int minutes = 0;
+        int seconds = 0;
+
+        // Setze nur den gewählten Wert
+        switch (type) {
+            case "days":
+                days = value;
+                break;
+            case "hours":
+                hours = value;
+                break;
+            case "minutes":
+                minutes = value;
+                break;
+            case "seconds":
+                seconds = value;
+                break;
+        }
 
         startChallenge(player, target, days, hours, minutes, seconds);
     }
@@ -259,7 +276,8 @@ public class ChallengeInventoryClickListener implements Listener {
     }
 
     /**
-     * Behandelt Klicks in der Challenge-Status-GUI (für Ansichtswechsel)
+     * Behandelt Klicks in der Challenge-Status-GUI
+     * Inkl. Ansichtswechsel UND Pagination
      */
     private void handleChallengeStatusClick(Player player, InventoryClickEvent event) {
         ItemStack clicked = event.getCurrentItem();
@@ -267,19 +285,42 @@ public class ChallengeInventoryClickListener implements Listener {
             return;
         }
 
-        // Prüfe ob der Filter-Button (Hopper) geklickt wurde
-        if (clicked.getType() == Material.HOPPER && event.getSlot() == 53) {
-            // Wechsle Ansicht
-            ChallengeStatusCommand cmd = (ChallengeStatusCommand) plugin.getCommand("challengestatus").getExecutor();
-            cmd.toggleViewMode(player);
+        int slot = event.getSlot();
 
+        // Vorherige Seite (Slot 45) - nur in Achievement-Ansicht
+        if (slot == 45 && clicked.getType() == Material.ARROW) {
+            ChallengeStatusCommand cmd = (ChallengeStatusCommand) plugin.getCommand("challengestatus").getExecutor();
+            cmd.previousPage(player);
 
             player.closeInventory();
-
-            // Öffne GUI mit neuer Ansicht
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 cmd.openStatusGUI(player);
             }, 1L);
+            return;
+        }
+
+        // Ansicht wechseln (Slot 48 in Achievement-Ansicht, Slot 53 in Spieler-Ansicht)
+        if ((slot == 48 || slot == 53) && clicked.getType() == Material.HOPPER) {
+            ChallengeStatusCommand cmd = (ChallengeStatusCommand) plugin.getCommand("challengestatus").getExecutor();
+            cmd.toggleViewMode(player);
+
+            player.closeInventory();
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                cmd.openStatusGUI(player);
+            }, 1L);
+            return;
+        }
+
+        // Nächste Seite (Slot 53) - nur in Achievement-Ansicht
+        if (slot == 53 && clicked.getType() == Material.ARROW) {
+            ChallengeStatusCommand cmd = (ChallengeStatusCommand) plugin.getCommand("challengestatus").getExecutor();
+            cmd.nextPage(player);
+
+            player.closeInventory();
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                cmd.openStatusGUI(player);
+            }, 1L);
+            return;
         }
     }
 }

@@ -147,11 +147,18 @@ public class AnonymCommand implements CommandExecutor {
             // Erstelle neues Profil mit Target-Skin aber Original-UUID
             WrappedGameProfile newProfile = new WrappedGameProfile(
                     player.getUniqueId(),
-                    targetProfile.getName()
+                    player.getName() // Verwende Original-Namen, nicht targetProfile.getName()
             );
 
-            // Kopiere Skin-Properties
-            newProfile.getProperties().putAll(targetProfile.getProperties());
+            // Kopiere Skin-Properties (sicherer Weg)
+            try {
+                for (String key : targetProfile.getProperties().keySet()) {
+                    newProfile.getProperties().putAll(key, targetProfile.getProperties().get(key));
+                }
+            } catch (Exception e) {
+                plugin.getLogger().warning("Konnte Skin-Properties nicht kopieren: " + e.getMessage());
+                return; // Abbrechen wenn Skin nicht kopiert werden kann
+            }
 
             // Sende PlayerInfo REMOVE für alle anderen
             PacketContainer removePacket = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE);

@@ -135,8 +135,7 @@ public class BlurCommand implements CommandExecutor {
         target.addPotionEffect(nausea);
 
         // Nachricht für Opfer
-        target.sendMessage("§8§l◉ VERSCHWOMMEN ◉");
-        target.sendMessage("§7Dein Bildschirm ist jetzt verschwommen!");
+        target.sendMessage("§8§lVERSCHWOMMEN");
         target.sendMessage("§7Dauer: §c" + seconds + " Sekunden");
         target.playSound(target.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 0.5f);
 

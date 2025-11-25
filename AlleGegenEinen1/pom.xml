@@ -22,8 +22,8 @@
         </repository>
         <!-- ProtocolLib Repository -->
         <repository>
-            <id>dmulloy2-repo</id>
-            <url>https://repo.dmulloy2.net/repository/public/</url>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
     </repositories>
 
@@ -36,10 +36,10 @@
         </dependency>
         <!-- ProtocolLib Dependency -->
         <dependency>
-            <groupId>com.comphenix.protocol</groupId>
+            <groupId>net.dmulloy2</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>5.3.0</version>
-            <scope>provided</scope>
+            <version>5.4.0</version>
+            <scope>provided</scope>  <!-- oder compile/compileOnly, je nach Bedarf -->
         </dependency>
     </dependencies>
 

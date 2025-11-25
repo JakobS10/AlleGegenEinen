@@ -2,6 +2,7 @@ package de.achievementchallenge.commands;
 
 import de.achievementchallenge.AchievementChallengePlugin;
 import de.achievementchallenge.managers.ChallengeManager;
+import de.achievementchallenge.managers.DataManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -22,7 +23,7 @@ import java.util.*;
  *
  * Öffnet eine GUI mit zwei Ansichts-Modi:
  * - Spieler-Ansicht: Zeigt Einzelkämpfer vs. alle anderen Spieler
- * - Achievement-Ansicht: Zeigt alle Achievements mit detaillierten Infos
+ * - Achievement-Ansicht: Zeigt alle Achievements mit detaillierten Infos + PAGINATION
  *
  * Kann von allen Spielern verwendet werden.
  */
@@ -32,6 +33,12 @@ public class ChallengeStatusCommand implements CommandExecutor {
 
     // Speichert den aktuellen Ansichts-Modus pro Spieler
     private final Map<UUID, ViewMode> playerViewMode = new HashMap<>();
+
+    // Speichert die aktuelle Seite pro Spieler (für Achievement-Ansicht)
+    private final Map<UUID, Integer> playerCurrentPage = new HashMap<>();
+
+    // Achievements pro Seite
+    private static final int ACHIEVEMENTS_PER_PAGE = 45; // Slots 0-44
 
     public ChallengeStatusCommand(AchievementChallengePlugin plugin) {
         this.plugin = plugin;
@@ -75,6 +82,7 @@ public class ChallengeStatusCommand implements CommandExecutor {
 
         // Initialisiere ViewMode falls noch nicht vorhanden
         playerViewMode.putIfAbsent(player.getUniqueId(), ViewMode.PLAYERS);
+        playerCurrentPage.putIfAbsent(player.getUniqueId(), 0);
 
         // Öffne GUI
         openStatusGUI(player);
@@ -176,24 +184,58 @@ public class ChallengeStatusCommand implements CommandExecutor {
     }
 
     /**
-     * Öffnet die Achievement-Ansicht
+     * Öffnet die Achievement-Ansicht mit Pagination
      */
     private void openAchievementView(Player player) {
         ChallengeManager cm = plugin.getChallengeManager();
-
-        Inventory inv = Bukkit.createInventory(null, 54, "§6§lChallenge Status - Achievements");
+        int currentPage = playerCurrentPage.getOrDefault(player.getUniqueId(), 0);
 
         // Hole alle Achievements
         List<String> allAchievements = de.achievementchallenge.utils.AchievementRegistry.getAchievementKeys();
+        int totalAchievements = allAchievements.size();
+        int totalPages = (int) Math.ceil((double) totalAchievements / ACHIEVEMENTS_PER_PAGE);
 
-        // Zeige die ersten 45 Achievements (Slots 0-44)
+        // Stelle sicher dass currentPage gültig ist
+        if (currentPage < 0) currentPage = 0;
+        if (currentPage >= totalPages) currentPage = totalPages - 1;
+        playerCurrentPage.put(player.getUniqueId(), currentPage);
+
+        // Berechne Start- und End-Index für diese Seite
+        int startIndex = currentPage * ACHIEVEMENTS_PER_PAGE;
+        int endIndex = Math.min(startIndex + ACHIEVEMENTS_PER_PAGE, totalAchievements);
+
+        Inventory inv = Bukkit.createInventory(null, 54, "§6§lAchievements - Seite " + (currentPage + 1) + "/" + totalPages);
+
+        // Zeige Achievements für diese Seite (Slots 0-44)
         int slot = 0;
-        for (String key : allAchievements) {
-            if (slot >= 45) break;
-
+        for (int i = startIndex; i < endIndex; i++) {
+            String key = allAchievements.get(i);
             ItemStack achievementItem = createAchievementStatusItem(key, cm);
             inv.setItem(slot, achievementItem);
             slot++;
+        }
+
+        // Navigation & Info (Slots 45-53)
+
+        // Vorherige Seite (Slot 45)
+        if (currentPage > 0) {
+            ItemStack prevPage = new ItemStack(Material.ARROW);
+            ItemMeta prevMeta = prevPage.getItemMeta();
+            prevMeta.setDisplayName("§e§l← Vorherige Seite");
+            prevMeta.setLore(Arrays.asList(
+                    "§7Seite " + currentPage + "/" + totalPages,
+                    "",
+                    "§7Klicke um zurückzublättern"
+            ));
+            prevPage.setItemMeta(prevMeta);
+            inv.setItem(45, prevPage);
+        } else {
+            // Platzhalter wenn keine vorherige Seite
+            ItemStack placeholder = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemMeta placeholderMeta = placeholder.getItemMeta();
+            placeholderMeta.setDisplayName("§8");
+            placeholder.setItemMeta(placeholderMeta);
+            inv.setItem(45, placeholder);
         }
 
         // Info-Item (Slot 49)
@@ -205,13 +247,35 @@ public class ChallengeStatusCommand implements CommandExecutor {
         lore.add("§7Einzelkämpfer: §e" + cm.getEinzelkaempferAchievementCount() + " Achievements");
         lore.add("§7Alle anderen: §e" + cm.getOthersAchievementCount() + " verschiedene Achievements");
         lore.add("");
-        lore.add("§7Gesamt: §e" + allAchievements.size() + " Achievements");
+        lore.add("§7Gesamt: §e" + totalAchievements + " Achievements");
+        lore.add("§7Seite: §e" + (currentPage + 1) + "/" + totalPages);
 
         infoMeta.setLore(lore);
         info.setItemMeta(infoMeta);
         inv.setItem(49, info);
 
-        // Filter-Wechsel-Button (Slot 53)
+        // Nächste Seite (Slot 53)
+        if (currentPage < totalPages - 1) {
+            ItemStack nextPage = new ItemStack(Material.ARROW);
+            ItemMeta nextMeta = nextPage.getItemMeta();
+            nextMeta.setDisplayName("§e§lNächste Seite →");
+            nextMeta.setLore(Arrays.asList(
+                    "§7Seite " + (currentPage + 2) + "/" + totalPages,
+                    "",
+                    "§7Klicke um weiterzublättern"
+            ));
+            nextPage.setItemMeta(nextMeta);
+            inv.setItem(53, nextPage);
+        } else {
+            // Platzhalter wenn keine nächste Seite
+            ItemStack placeholder = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemMeta placeholderMeta = placeholder.getItemMeta();
+            placeholderMeta.setDisplayName("§8");
+            placeholder.setItemMeta(placeholderMeta);
+            inv.setItem(53, placeholder);
+        }
+
+        // Filter-Wechsel-Button (Slot 48) - verschoben von 53
         ItemStack filterButton = new ItemStack(Material.HOPPER);
         ItemMeta filterMeta = filterButton.getItemMeta();
         filterMeta.setDisplayName("§6§lAnsicht wechseln");
@@ -222,7 +286,7 @@ public class ChallengeStatusCommand implements CommandExecutor {
                 "§e" + ViewMode.PLAYERS.getDisplayName() + " §7zu wechseln"
         ));
         filterButton.setItemMeta(filterMeta);
-        inv.setItem(53, filterButton);
+        inv.setItem(48, filterButton);
 
         player.openInventory(inv);
     }
@@ -336,6 +400,29 @@ public class ChallengeStatusCommand implements CommandExecutor {
         ViewMode current = playerViewMode.getOrDefault(player.getUniqueId(), ViewMode.PLAYERS);
         ViewMode next = (current == ViewMode.PLAYERS) ? ViewMode.ACHIEVEMENTS : ViewMode.PLAYERS;
         playerViewMode.put(player.getUniqueId(), next);
+
+        // Setze Seite auf 0 wenn zu Achievements gewechselt wird
+        if (next == ViewMode.ACHIEVEMENTS) {
+            playerCurrentPage.put(player.getUniqueId(), 0);
+        }
+    }
+
+    /**
+     * Geht zur nächsten Seite
+     */
+    public void nextPage(Player player) {
+        int currentPage = playerCurrentPage.getOrDefault(player.getUniqueId(), 0);
+        playerCurrentPage.put(player.getUniqueId(), currentPage + 1);
+    }
+
+    /**
+     * Geht zur vorherigen Seite
+     */
+    public void previousPage(Player player) {
+        int currentPage = playerCurrentPage.getOrDefault(player.getUniqueId(), 0);
+        if (currentPage > 0) {
+            playerCurrentPage.put(player.getUniqueId(), currentPage - 1);
+        }
     }
 
     /**

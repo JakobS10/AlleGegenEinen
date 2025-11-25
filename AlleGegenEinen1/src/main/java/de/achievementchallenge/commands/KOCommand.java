@@ -96,8 +96,7 @@ public class KOCommand implements CommandExecutor {
         // Kleine Verzögerung damit der Sound/Broadcast noch ankommt
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             target.kickPlayer("§c§l⚡ K.O. ⚡\n\n" +
-                    "§7" + kickMessage + "\n\n" +
-                    "§8Du warst geblendet und wurdest fertig gemacht...");
-        }, 20L); // 1 Sekunde Verzögerung
+                    "§7" + kickMessage + "\n\n");
+        }, 40L); // 2 Sekunden Verzögerung
     }
 }

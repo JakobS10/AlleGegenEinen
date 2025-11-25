@@ -106,6 +106,40 @@ commands:
     usage: /ko
     permission: achievementchallenge.daemon
 
+  schielen:
+    description: Gibt subtile Lag-Effekte
+    usage: /schielen <Spieler>
+    permission: achievementchallenge.daemon
+
+  immun:
+    description: Macht einen Spieler immun gegen Bans
+    usage: /immun <Spieler>
+    permission: achievementchallenge.daemon
+
+  psychischbedingt:
+    description: Fake Damage-Effekte ohne echten Schaden
+    usage: /psychischbedingt <Spieler>
+    permission: achievementchallenge.daemon
+
+  alleine:
+    description: Einsame Ambient-Sounds für 10 Minuten
+    usage: /alleine <Spieler>
+    permission: achievementchallenge.daemon
+
+  echo:
+    description: Alle Sounds werden mit Verzögerung wiederholt
+    usage: /echo [Spieler]
+    permission: achievementchallenge.daemon
+
+  upsidedown:
+    description: Dreht die Welt für 5 Sekunden auf den Kopf
+    usage: /upsidedown <Spieler>
+    permission: achievementchallenge.daemon
+
+  schatten:
+    description: Spawnt einen Schatten-Doppelgänger (Toggle)
+    usage: /schatten <Spieler>
+    permission: achievementchallenge.daemon
 
 permissions:
   achievementchallenge.timer.admin:

@@ -65,7 +65,7 @@ public class AchievementProgressManager {
             // Broadcast nur wenn es wirklich das erste Mal global ist
             AchievementRegistry.AchievementInfo info = AchievementRegistry.getAchievementInfo(key);
             if (info != null) {
-                String message = "§eThe Player §6§l" + realPlayerName + " §ewas the first completing §6§l" + info.getTitle() + " §e!";
+                String message = "§eDer Spieler §6§l" + realPlayerName + " §ewar der Erste, der §6§l" + info.getTitle() + " §e abgeschlossen hat!";
                 Bukkit.broadcastMessage(message);
             }
         }
@@ -111,16 +111,11 @@ public class AchievementProgressManager {
                 if (player.getAdvancementProgress(advancement).isDone()) {
                     completed.add(key);
 
+                    // WICHTIG: Nutze IMMER den echten Namen aus Player.getName()
+                    String realPlayerName = player.getName();
                     // Nur neu aufzeichnen wenn es GLOBAL noch nicht existiert
-                    if (!achievementData.containsKey(key)) {
-                        // WICHTIG: Nutze IMMER den echten Namen aus Player.getName()
-                        String realPlayerName = player.getName();
-
-                        achievementData.put(key,
-                                new AchievementData(playerId, DataManager.getTimerTicks(), realPlayerName, System.currentTimeMillis()));
-
-                        plugin.getLogger().info("Neues Achievement aufgezeichnet: " + key + " von " + realPlayerName);
-                    }
+                    achievementData.putIfAbsent(key,
+                            new AchievementData(playerId, DataManager.getTimerTicks(), realPlayerName, System.currentTimeMillis()));
                 }
             }
 
