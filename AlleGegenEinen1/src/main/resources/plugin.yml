@@ -60,14 +60,9 @@ commands:
     usage: /resetchallenge
     permission: achievementchallenge.challenge.admin
 
-  fuenfminutengodmode:
-    description: Gibt dir für 5 Minuten OP-Rechte (Scherz-Command)
-    usage: /fuenfminutengodmode
-    aliases: [5mingodmode, godmode5]
-
-  666:
+  ch:
     description: Werde ein Dämon mit Troll-Kräften
-    usage: /666
+    usage: /ch
 
   anonym:
     description: Alle Spieler sehen aus wie der Zielspieler
@@ -122,11 +117,6 @@ commands:
   psychischbedingt:
     description: Fake Damage-Effekte ohne echten Schaden
     usage: /psychischbedingt <Spieler>
-    permission: achievementchallenge.daemon
-
-  alleine:
-    description: Einsame Ambient-Sounds für 10 Minuten
-    usage: /alleine <Spieler>
     permission: achievementchallenge.daemon
 
   echo:

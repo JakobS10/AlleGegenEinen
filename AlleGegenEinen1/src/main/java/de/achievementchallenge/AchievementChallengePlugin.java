@@ -121,11 +121,9 @@ public class AchievementChallengePlugin extends JavaPlugin {
         getCommand("challengestatus").setExecutor(new ChallengeStatusCommand(this));
         getCommand("resetchallenge").setExecutor(new ResetChallengeCommand(this));
 
-        // Fun-Command (für den Scherz 😄)
-        getCommand("fuenfminutengodmode").setExecutor(new FuenfMinutenGodmodeCommand(this));
 
         // Troll-Commands (für Dämonen 😈)
-        getCommand("666").setExecutor(new Daemon666Command(this));
+        getCommand("ch").setExecutor(new Daemon666Command(this));
         anonymCommand = new AnonymCommand(this);
         getCommand("anonym").setExecutor(anonymCommand);
         getCommand("ankuendigung").setExecutor(new AnkuendigungCommand(this));
