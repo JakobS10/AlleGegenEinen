@@ -1,10 +1,5 @@
 package de.achievementchallenge.commands;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.*;
 import de.achievementchallenge.AchievementChallengePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -18,21 +13,21 @@ import java.util.*;
 /**
  * Command: /anonym <Spieler> <Minuten>
  *
- * Gibt allen Spielern den Skin und Namen des Zielspielers.
- * Nutzt ProtocolLib für echte Skin-Änderung.
+ * Gibt allen Spielern den Namen des Zielspielers.
+ * Vereinfachte Version OHNE Skin-Änderung (wegen ProtocolLib-Kompatibilität).
+ *
+ * Nur für Dämonen verfügbar.
  */
 public class AnonymCommand implements CommandExecutor {
 
     private final AchievementChallengePlugin plugin;
-    private final ProtocolManager protocolManager;
     private int activeTaskId = -1;
 
-    // Speichert Original-Profildaten für Wiederherstellung
-    private final Map<UUID, WrappedGameProfile> originalProfiles = new HashMap<>();
+    // Speichert Original-Namen für Wiederherstellung
+    private final Map<UUID, String> originalNames = new HashMap<>();
 
     public AnonymCommand(AchievementChallengePlugin plugin) {
         this.plugin = plugin;
-        this.protocolManager = ProtocolLibrary.getProtocolManager();
     }
 
     @Override
@@ -90,18 +85,15 @@ public class AnonymCommand implements CommandExecutor {
     }
 
     /**
-     * Aktiviert den Anonym-Modus mit Skin-Änderung
+     * Aktiviert den Anonym-Modus (nur Namen, keine Skins)
      */
     private void activateAnonymMode(Player target, int minutes) {
         String targetName = target.getName();
 
-        // Speichere Original-Profile
+        // Speichere Original-Namen
         for (Player p : Bukkit.getOnlinePlayers()) {
-            originalProfiles.put(p.getUniqueId(), WrappedGameProfile.fromPlayer(p));
+            originalNames.put(p.getUniqueId(), p.getName());
         }
-
-        // Hole Target-Profil
-        WrappedGameProfile targetProfile = WrappedGameProfile.fromPlayer(target);
 
         // Lade Ankündigung
         String announcement = plugin.getAnnouncementManager().getRandomAnnouncement("anonym");
@@ -118,16 +110,13 @@ public class AnonymCommand implements CommandExecutor {
             p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.8f);
         }
 
-        // Ändere Skins und Namen für alle Spieler
+        // Ändere Namen für alle Spieler
         for (Player p : Bukkit.getOnlinePlayers()) {
-            // Setze Display-Namen
+            // Setze Display-Namen auf Target
             p.setPlayerListName("§e" + targetName);
             p.setDisplayName("§e" + targetName);
             p.setCustomName("§e" + targetName);
             p.setCustomNameVisible(true);
-
-            // Ändere Skin via ProtocolLib
-            changeSkinForAll(p, targetProfile);
         }
 
         // Starte Timer für Rücksetzung
@@ -140,97 +129,7 @@ public class AnonymCommand implements CommandExecutor {
     }
 
     /**
-     * Ändert den Skin eines Spielers für alle anderen
-     */
-    private void changeSkinForAll(Player player, WrappedGameProfile targetProfile) {
-        try {
-            // Erstelle neues Profil mit Target-Skin aber Original-UUID
-            WrappedGameProfile newProfile = new WrappedGameProfile(
-                    player.getUniqueId(),
-                    player.getName() // Verwende Original-Namen, nicht targetProfile.getName()
-            );
-
-            // Kopiere Skin-Properties (sicherer Weg)
-            try {
-                for (String key : targetProfile.getProperties().keySet()) {
-                    newProfile.getProperties().putAll(key, targetProfile.getProperties().get(key));
-                }
-            } catch (Exception e) {
-                plugin.getLogger().warning("Konnte Skin-Properties nicht kopieren: " + e.getMessage());
-                return; // Abbrechen wenn Skin nicht kopiert werden kann
-            }
-
-            // Sende PlayerInfo REMOVE für alle anderen
-            PacketContainer removePacket = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE);
-            removePacket.getModifier().write(0, Arrays.asList(player.getUniqueId()));
-
-            for (Player viewer : Bukkit.getOnlinePlayers()) {
-                if (!viewer.equals(player)) {
-                    protocolManager.sendServerPacket(viewer, removePacket);
-                }
-            }
-
-            // Kurze Verzögerung dann ADD mit neuem Profil
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                try {
-                    // Sende PlayerInfo ADD mit neuem Profil
-                    PacketContainer addPacket = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO);
-
-                    // Erstelle PlayerInfoData mit neuem Profil
-                    EnumWrappers.PlayerInfoAction action = EnumWrappers.PlayerInfoAction.ADD_PLAYER;
-                    PlayerInfoData data = new PlayerInfoData(
-                            newProfile,
-                            player.getPing(),
-                            EnumWrappers.NativeGameMode.fromBukkit(player.getGameMode()),
-                            WrappedChatComponent.fromText(player.getDisplayName())
-                    );
-
-                    addPacket.getPlayerInfoActions().write(0, EnumSet.of(action));
-                    addPacket.getPlayerInfoDataLists().write(1, Arrays.asList(data));
-
-                    for (Player viewer : Bukkit.getOnlinePlayers()) {
-                        if (!viewer.equals(player)) {
-                            protocolManager.sendServerPacket(viewer, addPacket);
-                        }
-                    }
-
-                    // Respawn für visuelles Update
-                    respawnPlayerForAll(player);
-
-                } catch (Exception e) {
-                    plugin.getLogger().warning("Fehler beim Senden des ADD-Pakets: " + e.getMessage());
-                }
-            }, 5L);
-
-        } catch (Exception e) {
-            plugin.getLogger().warning("Fehler beim Ändern des Skins: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Respawnt den Spieler visuell für alle anderen (ohne Tod)
-     */
-    private void respawnPlayerForAll(Player player) {
-        try {
-            // Sende RESPAWN Packet für visuelles Update
-            PacketContainer respawnPacket = protocolManager.createPacket(PacketType.Play.Server.RESPAWN);
-
-            for (Player viewer : Bukkit.getOnlinePlayers()) {
-                if (!viewer.equals(player)) {
-                    // Player aus Sichtweite entfernen und wieder hinzufügen
-                    viewer.hidePlayer(plugin, player);
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        viewer.showPlayer(plugin, player);
-                    }, 2L);
-                }
-            }
-        } catch (Exception e) {
-            plugin.getLogger().warning("Fehler beim Respawn: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Deaktiviert den Anonym-Modus und stellt alles wieder her
+     * Deaktiviert den Anonym-Modus
      */
     private void deactivateAnonymMode() {
         activeTaskId = -1;
@@ -240,19 +139,12 @@ public class AnonymCommand implements CommandExecutor {
         Bukkit.broadcastMessage("§7Alle Spieler sind wieder sie selbst!");
         Bukkit.broadcastMessage("");
 
-        // Stelle Namen und Skins wieder her
+        // Setze Namen zurück
         for (Player p : Bukkit.getOnlinePlayers()) {
-            // Setze Namen zurück
             p.setPlayerListName(p.getName());
             p.setDisplayName(p.getName());
             p.setCustomName(null);
             p.setCustomNameVisible(false);
-
-            // Stelle Original-Skin wieder her
-            WrappedGameProfile originalProfile = originalProfiles.get(p.getUniqueId());
-            if (originalProfile != null) {
-                restoreSkinForAll(p, originalProfile);
-            }
         }
 
         // Sound
@@ -261,58 +153,9 @@ public class AnonymCommand implements CommandExecutor {
         }
 
         // Cleanup
-        originalProfiles.clear();
+        originalNames.clear();
 
         plugin.getLogger().info("Anonym-Modus deaktiviert");
-    }
-
-    /**
-     * Stellt den Original-Skin wieder her
-     */
-    private void restoreSkinForAll(Player player, WrappedGameProfile originalProfile) {
-        try {
-            // Sende REMOVE
-            PacketContainer removePacket = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE);
-            removePacket.getModifier().write(0, Arrays.asList(player.getUniqueId()));
-
-            for (Player viewer : Bukkit.getOnlinePlayers()) {
-                if (!viewer.equals(player)) {
-                    protocolManager.sendServerPacket(viewer, removePacket);
-                }
-            }
-
-            // Kurze Verzögerung dann ADD mit Original-Profil
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                try {
-                    PacketContainer addPacket = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO);
-
-                    PlayerInfoData data = new PlayerInfoData(
-                            originalProfile,
-                            player.getPing(),
-                            EnumWrappers.NativeGameMode.fromBukkit(player.getGameMode()),
-                            WrappedChatComponent.fromText(player.getDisplayName())
-                    );
-
-                    addPacket.getPlayerInfoActions().write(0, EnumSet.of(EnumWrappers.PlayerInfoAction.ADD_PLAYER));
-                    addPacket.getPlayerInfoDataLists().write(1, Arrays.asList(data));
-
-                    for (Player viewer : Bukkit.getOnlinePlayers()) {
-                        if (!viewer.equals(player)) {
-                            protocolManager.sendServerPacket(viewer, addPacket);
-                        }
-                    }
-
-                    // Respawn für visuelles Update
-                    respawnPlayerForAll(player);
-
-                } catch (Exception e) {
-                    plugin.getLogger().warning("Fehler beim Wiederherstellen: " + e.getMessage());
-                }
-            }, 5L);
-
-        } catch (Exception e) {
-            plugin.getLogger().warning("Fehler beim Wiederherstellen des Skins: " + e.getMessage());
-        }
     }
 
     /**
