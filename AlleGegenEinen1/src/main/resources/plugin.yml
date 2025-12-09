@@ -55,46 +55,7 @@ commands:
     description: Setzt die Challenge zurück
     usage: /resetchallenge
     permission: achievementchallenge.challenge.admin
-
-  fuenfminutengodmode:
-    description: Gibt dir für 5 Minuten OP-Rechte (Scherz-Command)
-    usage: /fuenfminutengodmode
-    aliases: [5mingodmode, godmode5]
-
-  666:
-    description: Werde ein Dämon mit Troll-Kräften
-    usage: /666
-
-  anonym:
-    description: Alle Spieler sehen aus wie der Zielspieler
-    usage: /anonym <Spieler> <Minuten>
-    permission: achievementchallenge.daemon
-
-  ankuendigung:
-    description: Sendet eine rote, fette Nachricht in den Chat
-    usage: /ankuendigung <Nachricht>
-    permission: achievementchallenge.daemon
-
-  audiotest:
-    description: Spielt Horror-Sounds beim Zielspieler
-    usage: /audiotest <Spieler>
-    permission: achievementchallenge.daemon
-
-  kaffepause:
-    description: Kick alle mit einer Ausrede
-    usage: /kaffepause
-    permission: achievementchallenge.daemon
-
-  lag:
-    description: Friert alle Spieler und Entities ein
-    usage: /lag
-    permission: achievementchallenge.daemon
-
-  befreimich:
-    description: Gibt Dämonen ein Befreiungs-Totem
-    usage: /befreimich
-    permission: achievementchallenge.daemon
-
+    
 permissions:
   achievementchallenge.timer.admin:
     description: Erlaubt Timer-Administration
@@ -103,6 +64,3 @@ permissions:
   achievementchallenge.challenge.admin:
     description: Erlaubt Challenge-Administration
     default: op
-
-  achievementchallenge.daemon:
-    description: Erlaubt Dämon-Commands (automatisch für Dämonen)
