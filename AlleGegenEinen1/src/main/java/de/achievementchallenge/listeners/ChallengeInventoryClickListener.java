@@ -31,8 +31,22 @@ public class ChallengeInventoryClickListener implements Listener {
     // Map<Executor-UUID, Target-Player-Name>
     private final Map<UUID, String> pendingEinzelkaempfer = new HashMap<>();
 
+    // NEU: Speichert die aktuell ausgewählten Zeiten für jeden Spieler
+    // Map<Executor-UUID, TimeSelection>
+    private final Map<UUID, TimeSelection> currentTimeSelection = new HashMap<>();
+
     public ChallengeInventoryClickListener(AchievementChallengePlugin plugin) {
         this.plugin = plugin;
+    }
+
+    /**
+     * Hilfsklasse zum Speichern der ausgewählten Zeit
+     */
+    private static class TimeSelection {
+        int days = 0;
+        int hours = 0;
+        int minutes = 0;
+        int seconds = 0;
     }
 
     @EventHandler
@@ -85,6 +99,9 @@ public class ChallengeInventoryClickListener implements Listener {
                 // Speichere für Zeitauswahl
                 pendingEinzelkaempfer.put(player.getUniqueId(), targetName);
 
+                // Initialisiere leere TimeSelection
+                currentTimeSelection.put(player.getUniqueId(), new TimeSelection());
+
                 // Öffne Zeitauswahl-GUI
                 player.closeInventory();
                 openTimeSelectionGUI(player, targetName);
@@ -102,15 +119,21 @@ public class ChallengeInventoryClickListener implements Listener {
     private void openTimeSelectionGUI(Player player, String targetName) {
         Inventory inv = Bukkit.createInventory(null, 54, "§6Challenge-Zeit festlegen");
 
-        // Info-Item oben
+        // Info-Item oben (zeigt aktuelle Auswahl)
+        TimeSelection selection = currentTimeSelection.getOrDefault(player.getUniqueId(), new TimeSelection());
+
         ItemStack info = new ItemStack(Material.CLOCK);
         ItemMeta infoMeta = info.getItemMeta();
         infoMeta.setDisplayName("§e§lZeit für die Challenge");
         infoMeta.setLore(Arrays.asList(
                 "§7Wähle die Dauer der Challenge:",
-                "§7Tage | Stunden | Minuten | Sekunden",
+                "§7Klicke auf Wollblöcke zum Auswählen",
                 "",
-                "§7Ziel-Spieler: §e" + targetName
+                "§7Ziel-Spieler: §e" + targetName,
+                "",
+                "§6Aktuelle Auswahl:",
+                "§e" + selection.days + " Tage, " + selection.hours + " Stunden, "
+                        + selection.minutes + " Minuten, " + selection.seconds + " Sekunden"
         ));
         info.setItemMeta(infoMeta);
         inv.setItem(4, info);
@@ -118,34 +141,47 @@ public class ChallengeInventoryClickListener implements Listener {
         // Zeit-Auswahl Items
         // Tage (Slot 10-16)
         for (int i = 0; i <= 7; i++) {
-            inv.setItem(10 + i, createTimeItem(Material.BLUE_WOOL, i + " Tage", "days:" + i));
+            Material mat = (selection.days == i) ? Material.LIME_WOOL : Material.BLUE_WOOL;
+            inv.setItem(10 + i, createTimeItem(mat, i + " Tage", "days:" + i));
         }
 
         // Stunden (Slot 19-25)
         for (int i = 0; i <= 23; i += 3) { // 0, 3, 6, 9, 12, 15, 18, 21
-            inv.setItem(19 + (i / 3), createTimeItem(Material.GREEN_WOOL, i + " Stunden", "hours:" + i));
+            Material mat = (selection.hours == i) ? Material.LIME_WOOL : Material.GREEN_WOOL;
+            inv.setItem(19 + (i / 3), createTimeItem(mat, i + " Stunden", "hours:" + i));
         }
 
         // Minuten (Slot 28-34)
         for (int i = 0; i <= 60; i += 10) { // 0, 10, 20, 30, 40, 50, 60
-            inv.setItem(28 + (i / 10), createTimeItem(Material.YELLOW_WOOL, i + " Minuten", "minutes:" + i));
+            Material mat = (selection.minutes == i) ? Material.LIME_WOOL : Material.YELLOW_WOOL;
+            inv.setItem(28 + (i / 10), createTimeItem(mat, i + " Minuten", "minutes:" + i));
         }
 
         // Sekunden (Slot 37-43)
         for (int i = 0; i <= 60; i += 10) {
-            inv.setItem(37 + (i / 10), createTimeItem(Material.RED_WOOL, i + " Sekunden", "seconds:" + i));
+            Material mat = (selection.seconds == i) ? Material.LIME_WOOL : Material.RED_WOOL;
+            inv.setItem(37 + (i / 10), createTimeItem(mat, i + " Sekunden", "seconds:" + i));
         }
 
-        // Standard-Auswahl (Slot 49)
-        ItemStack standard = new ItemStack(Material.LIME_WOOL);
-        ItemMeta standardMeta = standard.getItemMeta();
-        standardMeta.setDisplayName("§a§lStandard: 1 Stunde");
-        standardMeta.setLore(Arrays.asList(
-                "§7Setzt die Challenge auf 1 Stunde",
-                "§7(0 Tage, 1 Stunde, 0 Minuten, 0 Sekunden)"
+        // Bestätigen-Button (Slot 49)
+        ItemStack confirm = new ItemStack(Material.LIME_WOOL);
+        ItemMeta confirmMeta = confirm.getItemMeta();
+        confirmMeta.setDisplayName("§a§lChallenge starten");
+        confirmMeta.setLore(Arrays.asList(
+                "§7Startet die Challenge mit:",
+                "§e" + selection.days + " Tage, " + selection.hours + " Stunden,",
+                "§e" + selection.minutes + " Minuten, " + selection.seconds + " Sekunden"
         ));
-        standard.setItemMeta(standardMeta);
-        inv.setItem(49, standard);
+        confirm.setItemMeta(confirmMeta);
+        inv.setItem(49, confirm);
+
+        // Abbrechen-Button (Slot 53)
+        ItemStack cancel = new ItemStack(Material.RED_WOOL);
+        ItemMeta cancelMeta = cancel.getItemMeta();
+        cancelMeta.setDisplayName("§c§lAbbrechen");
+        cancelMeta.setLore(Arrays.asList("§7Klicke zum Abbrechen"));
+        cancel.setItemMeta(cancelMeta);
+        inv.setItem(53, cancel);
 
         player.openInventory(inv);
     }
@@ -184,12 +220,27 @@ public class ChallengeInventoryClickListener implements Listener {
             player.closeInventory();
             player.sendMessage("§cSpieler ist nicht mehr online: " + targetName);
             pendingEinzelkaempfer.remove(player.getUniqueId());
+            currentTimeSelection.remove(player.getUniqueId());
             return;
         }
 
-        // Standard-Auswahl (1 Stunde)
-        if (clicked.getType() == Material.LIME_WOOL) {
-            startChallenge(player, target, 0, 1, 0, 0);
+        // Bestätigen-Button (Slot 49)
+        if (event.getSlot() == 49 && clicked.getType() == Material.LIME_WOOL) {
+            TimeSelection selection = currentTimeSelection.get(player.getUniqueId());
+            if (selection == null) {
+                selection = new TimeSelection();
+            }
+
+            startChallenge(player, target, selection.days, selection.hours, selection.minutes, selection.seconds);
+            return;
+        }
+
+        // Abbrechen-Button (Slot 53)
+        if (event.getSlot() == 53 && clicked.getType() == Material.RED_WOOL) {
+            player.closeInventory();
+            player.sendMessage("§cAbgebrochen.");
+            pendingEinzelkaempfer.remove(player.getUniqueId());
+            currentTimeSelection.remove(player.getUniqueId());
             return;
         }
 
@@ -208,14 +259,29 @@ public class ChallengeInventoryClickListener implements Listener {
         String type = parts[0];
         int value = Integer.parseInt(parts[1]);
 
-        // Zeige Zusammenfassung und Bestätigung
-        // Für einfache Implementierung: Nutze Standard-Werte + ausgewählten Wert
-        int days = type.equals("days") ? value : 0;
-        int hours = type.equals("hours") ? value : 1;
-        int minutes = type.equals("minutes") ? value : 0;
-        int seconds = type.equals("seconds") ? value : 0;
+        // Aktualisiere die Auswahl
+        TimeSelection selection = currentTimeSelection.computeIfAbsent(player.getUniqueId(), k -> new TimeSelection());
 
-        startChallenge(player, target, days, hours, minutes, seconds);
+        switch (type) {
+            case "days":
+                selection.days = value;
+                break;
+            case "hours":
+                selection.hours = value;
+                break;
+            case "minutes":
+                selection.minutes = value;
+                break;
+            case "seconds":
+                selection.seconds = value;
+                break;
+        }
+
+        // GUI neu öffnen um Änderungen anzuzeigen
+        player.closeInventory();
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            openTimeSelectionGUI(player, targetName);
+        }, 1L);
     }
 
     /**
@@ -226,6 +292,7 @@ public class ChallengeInventoryClickListener implements Listener {
 
         // Entferne aus pending
         pendingEinzelkaempfer.remove(executor.getUniqueId());
+        currentTimeSelection.remove(executor.getUniqueId());
 
         // Starte Challenge
         plugin.getChallengeManager().setEinzelkaempfer(target, days, hours, minutes, seconds);
@@ -272,7 +339,6 @@ public class ChallengeInventoryClickListener implements Listener {
             // Wechsle Ansicht
             ChallengeStatusCommand cmd = (ChallengeStatusCommand) plugin.getCommand("challengestatus").getExecutor();
             cmd.toggleViewMode(player);
-
 
             player.closeInventory();
 
